@@ -1,0 +1,77 @@
+#importing matrixes from Excel file (matrix generator)
+
+library(readxl)
+Community_matrix <- read_excel("C:/Users/Ross/Google Drive/NYC Seedbank Study Ross Whitehead/Analyses/Archive/Community matrix generator for species by plot.xlsx",  sheet = "Community")
+library(readxl)
+Plot_variables <- read_excel("C:/Users/Ross/Google Drive/NYC Seedbank Study Ross Whitehead/Analyses/Archive/Community matrix generator for species by plot.xlsx", sheet = "Plot varibles")
+library(readxl)
+Species_variables<- read_excel("C:/Users/Ross/Google Drive/NYC Seedbank Study Ross Whitehead/Analyses/Archive/Community matrix generator for species by plot.xlsx", sheet = "Species variables")
+
+#Univariate analysis- biodiversity
+
+library("PMCMR", lib.loc="~/R/win-library/3.3")
+library("vegan", lib.loc="~/R/win-library/3.3")
+library("ggplot2", lib.loc="~/R/win-library/3.3")
+
+Shannon_Index= diversity(t(Community_matrix), index = 'shannon')
+Simpson_Index= diversity(t(Community_matrix), index = 'simpson')
+posthoc.kruskal.dunn.test(Plot_variables$`Shannon Index`~ as.factor(Plot_variables$`Restoration Status`))
+posthoc.kruskal.dunn.test(Plot_variables$`Species richness`~ as.factor(Plot_variables$`Restoration Status`))
+boxplot(Plot_variables$`Shannon Index`~ as.factor(Plot_variables$`Restoration Status`), outline = FALSE, main =  "Seedbank Shannon Index")
+boxplot(Plot_variables$`Species richness`~ as.factor(Plot_variables$`Restoration Status`), outline = FALSE, main =  "Seedbank Species Richness")
+
+posthoc.kruskal.dunn.test(Plot_variables$ "Fern Other" ~ as.factor(Plot_variables$`Restoration Status`))
+boxplot(Plot_variables$ "Fern Other" ~ as.factor(Plot_variables$`Restoration Status`), outline = FALSE, main =  "Fern Other")
+
+posthoc.kruskal.dunn.test(Plot_variables$ "Graminoid Native" ~ as.factor(Plot_variables$`Restoration Status`))
+boxplot(Plot_variables$ "Graminoid Native" ~ as.factor(Plot_variables$`Restoration Status`), outline = FALSE, main =  "Monocot Native")
+
+posthoc.kruskal.dunn.test(Plot_variables$ "Graminoid Introduced" ~ as.factor(Plot_variables$`Restoration Status`))
+boxplot(Plot_variables$ "Graminoid Introduced" ~ as.factor(Plot_variables$`Restoration Status`), outline = FALSE, main =  "Monocot Introduced" )
+
+posthoc.kruskal.dunn.test(Plot_variables$ "Herb Native" ~ as.factor(Plot_variables$`Restoration Status`))
+boxplot(Plot_variables$ "Herb Native" ~ as.factor(Plot_variables$`Restoration Status`), outline = FALSE, main =  "Dicot Native")
+
+posthoc.kruskal.dunn.test(Plot_variables$ "Herb Introduced" ~ as.factor(Plot_variables$`Restoration Status`))
+boxplot(Plot_variables$ "Herb Introduced" ~ as.factor(Plot_variables$`Restoration Status`), outline = FALSE, main =  "Dicot Introduced")
+
+posthoc.kruskal.dunn.test(Plot_variables$"Shrub Native" ~ as.factor(Plot_variables$`Restoration Status`))
+boxplot(Plot_variables$"Shrub Native" ~ as.factor(Plot_variables$`Restoration Status`), outline = FALSE, main =  "Shrub Native")
+
+posthoc.kruskal.dunn.test(Plot_variables$ "Shrub Introduced" ~ as.factor(Plot_variables$`Restoration Status`))
+boxplot(Plot_variables$ "Shrub Introduced" ~ as.factor(Plot_variables$`Restoration Status`), outline = FALSE, main =  "Shrub Introduced")
+
+posthoc.kruskal.dunn.test(Plot_variables$ "Vine native" ~ as.factor(Plot_variables$`Restoration Status`))
+boxplot(Plot_variables$ "Vine native" ~ as.factor(Plot_variables$`Restoration Status`), outline = FALSE, main =  "Liana Native")
+
+posthoc.kruskal.dunn.test(Plot_variables$"Vine Intorduced" ~ as.factor(Plot_variables$`Restoration Status`))
+boxplot(Plot_variables$`Vine Intorduced` ~ as.factor(Plot_variables$`Restoration Status`), outline = FALSE, main =  "Liana Introduced")
+
+posthoc.kruskal.dunn.test(Plot_variables$"Tree Native"~ as.factor(Plot_variables$`Restoration Status`))
+boxplot(Plot_variables$"Tree Native"~ as.factor(Plot_variables$`Restoration Status`), outline = FALSE, main =  "Tree Native")
+
+posthoc.kruskal.dunn.test(Plot_variables$"Tree Native With Robinia"~ as.factor(Plot_variables$`Restoration Status`))
+boxplot(Plot_variables$"Tree Native With Robinia"~ as.factor(Plot_variables$`Restoration Status`), outline = FALSE, main =  "Tree Native With Robinia")
+
+posthoc.kruskal.dunn.test(Plot_variables$'Tree Introduced'~ as.factor(Plot_variables$`Restoration Status`))
+boxplot(Plot_variables$"Tree Introduced"~ as.factor(Plot_variables$`Restoration Status`), outline = FALSE, main =  "Tree Introduced")
+
+
+# Bray-Curtis dissimilarity calculation on community matric (Species x plot) to get a 
+# distance matrix: use distance matrix for NMDS Tutorial availible at 
+#https://jonlefcheck.net/2012/10/24/nmds-tutorial-in-r/ 
+#for converting community matrix to dissimilarity matrix, then running NMDS to assess differences in communities under 
+#different management (no restoration, recent restoration, long term retsoration, old growth reference)
+
+#Permutational analysis of variance; non-parametric multivariate analysis, similar to ANOVA, but for multiple variables and non-parametric
+adonis(t(Community_matrix[2:81]) ~ Plot_variables$`Restoration Status`, permutations = 9999, method = "bray")
+
+#import community matrix with rows labeled as plots, and columns labeled as species, labeled as community_matrix
+library("vegan", lib.loc="~/R/win-library/3.3")
+Community_matrix2<-metaMDS(t(Community_matrix[2:81]), trymax = 1000)
+treat = Plot_variables$`Restoration Status`
+ordiplot(Community_matrix2,type="n")
+orditorp(Community_matrix2,display="sites",col=c(rep("red",30),rep("blue",8), rep("green", 32), rep("yellow", 10)), air = 0.1)
+
+
+
